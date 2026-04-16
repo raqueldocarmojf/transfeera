@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Abordagem — Transfeera</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f7f4; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 680px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 14px; margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 2px solid #00B37E; }
+    .header-logo { font-size: 20px; font-weight: 800; color: #00B37E; letter-spacing: -0.03em; }
+    .header-divider { width: 1px; height: 28px; background: #cce8de; }
+    .header-text h1 { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
+    .header-text p { font-size: 12px; color: #888; }
+    .catalog-preview { background: #00B37E; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+    .catalog-preview-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.75); margin-bottom: 10px; }
+    .catalog-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ctag { font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 500; background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+    .card { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #d4ede4; border-top: 3px solid #00B37E; }
+    .acesso-box { background: #fff; border: 1px solid #d4ede4; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+    .acesso-box h2 { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+    .acesso-box p { font-size: 13px; color: #888; margin-bottom: 1rem; }
+    .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #00B37E; border-top: 1px solid #edf7f3; padding-top: 1.25rem; margin-top: 1.25rem; margin-bottom: 1rem; }
+    .section-title:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .field { margin-bottom: 1rem; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; font-weight: 500; }
+    .field-note { font-size: 11px; color: #aaa; margin-top: 5px; }
+    select, textarea, input[type="text"], input[type="email"], input[type="url"] { width: 100%; padding: 10px 12px; font-size: 14px; background: #f7fdf9; color: #1a1a1a; border: 1px solid #cce8de; border-radius: 8px; outline: none; font-family: inherit; transition: border-color 0.15s; }
+    select:focus, textarea:focus, input:focus { border-color: #00B37E; background: #fff; }
+    textarea { resize: vertical; line-height: 1.6; }
+    .source-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tab-btn { padding: 6px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; font-family: inherit; border: 1px solid #cce8de; background: transparent; color: #888; transition: all 0.15s; }
+    .tab-btn.active { background: #00B37E; color: #fff; border-color: #00B37E; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+    .btn-gerar { width: 100%; margin-top: 0.5rem; padding: 13px; background: #00B37E; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+    .btn-gerar:hover { opacity: 0.88; }
+    .btn-gerar:disabled { opacity: 0.4; cursor: default; }
+    .result-card { background: #fff; border: 1px solid #d4ede4; border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem; }
+    .result-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #00B37E; margin-bottom: 8px; }
+    .result-section { margin-bottom: 1.25rem; }
+    .result-section:last-child { margin-bottom: 0; }
+    .divider { border: none; border-top: 1px solid #edf7f3; margin: 1.25rem 0; }
+    .product-badge { display: inline-flex; align-items: center; gap: 6px; background: #00B37E; color: #fff; border-radius: 99px; padding: 6px 14px; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+    .fit-score { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .fit-label { font-size: 12px; color: #999; }
+    .fit-bar-wrap { flex: 1; height: 5px; background: #edf7f3; border-radius: 99px; overflow: hidden; }
+    .fit-bar { height: 100%; border-radius: 99px; background: #00B37E; }
+    .fit-num { font-size: 12px; font-weight: 700; color: #00B37E; min-width: 32px; }
+    .justif { font-size: 13px; color: #555; line-height: 1.6; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 12px; padding: 3px 10px; border-radius: 99px; font-weight: 500; }
+    .tag-green { background: #d4f0e4; color: #007a56; }
+    .tag-gray { background: #f0f0f0; color: #555; }
+    .msg-box { background: #f7fdf9; border: 1px solid #d4ede4; border-radius: 8px; padding: 1rem; font-size: 14px; line-height: 1.7; color: #1a1a1a; white-space: pre-wrap; }
+    .copy-btn { margin-top: 8px; padding: 6px 14px; background: transparent; border: 1px solid #00B37E; border-radius: 99px; font-size: 12px; cursor: pointer; color: #00B37E; font-family: inherit; font-weight: 600; }
+    .copy-btn:hover { background: #d4f0e4; }
+    .error-box { background: #fce8e8; color: #a32d2d; border-radius: 8px; padding: 1rem; font-size: 13px; line-height: 1.6; margin-top: 1rem; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer { text-align: center; margin-top: 2rem; font-size: 11px; color: #aaa; }
+    .footer span { color: #00B37E; font-weight: 600; }
+    .source-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #007a56; font-weight: 600; background: #d4f0e4; padding: 3px 10px; border-radius: 6px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-logo">transfeera</div>
+      <div class="header-divider"></div>
+      <div class="header-text">
+        <h1>Gerador de Abordagem Comercial</h1>
+        <p>Time comercial · Uso interno</p>
+      </div>
+    </div>
+    <div class="acesso-box">
+      <h2>Seu e-mail corporativo</h2>
+      <p>Digite seu e-mail para acessar a ferramenta.</p>
+      <div class="field">
+        <input type="email" id="email" placeholder="nome@transfeera.com" />
+      </div>
+    </div>
+    <div class="catalog-preview">
+      <div class="catalog-preview-title">Portfólio carregado · 12 soluções</div>
+      <div class="catalog-tags">
+        <span class="ctag">Pix</span>
+        <span class="ctag">Pix Automático</span>
+        <span class="ctag">Boleto</span>
+        <span class="ctag">Pague Boletos</span>
+        <span class="ctag">Link de Pagamento</span>
+        <span class="ctag">Validação Bancária</span>
+        <span class="ctag">Plataforma</span>
+        <span class="ctag">API</span>
+        <span class="ctag">Split</span>
+        <span class="ctag">Multicontas</span>
+        <span class="ctag">Subcontas</span>
+        <span class="ctag">Bets</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Contexto do prospect</div>
+      <div class="field">
+        <label>Como você vai informar o contexto do prospect?</label>
+        <div class="source-tabs">
+          <button class="tab-btn active" id="tab-url" onclick="setTab('url')">Link do site</button>
+          <button class="tab-btn" id="tab-texto" onclick="setTab('texto')">Colar texto</button>
+          <button class="tab-btn" id="tab-ambos" onclick="setTab('ambos')">Ambos</button>
+        </div>
+      </div>
+      <div id="campo-url" class="field">
+        <label>URL do site do prospect</label>
+        <input type="url" id="url" placeholder="https://www.empresa.com.br" />
+        <p class="field-note">A ferramenta vai ler o site automaticamente e personalizar a abordagem com base no conteúdo real.</p>
+      </div>
+      <div id="campo-texto" class="field" style="display:none;">
+        <label>Cole aqui o conteúdo do prospect</label>
+        <textarea id="conteudo" style="min-height:100px;" placeholder="Cole texto da vaga, perfil do LinkedIn, descrição da empresa..."></textarea>
+      </div>
+      <div class="field">
+        <label>Persona que você vai abordar</label>
+        <input type="text" id="persona" placeholder="Ex: CFO de marketplace com 200+ sellers, foco em escala de repasses" />
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Canal de abordagem</label>
+          <select id="canal">
+            <option value="LinkedIn (mensagem direta)">LinkedIn (mensagem direta)</option>
+            <option value="E-mail frio">E-mail frio</option>
+            <option value="WhatsApp">WhatsApp</option>
+            <option value="Ligação (script)">Ligação (script)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Objetivo da abordagem</label>
+          <select id="objetivo">
+            <option value="Agendar reunião / demo">Agendar reunião / demo</option>
+            <option value="Enviar conteúdo relevante">Enviar conteúdo relevante</option>
+            <option value="Reativar lead frio">Reativar lead frio</option>
+            <option value="Pedir indicação">Pedir indicação</option>
+          </select>
+        </div>
+      </div>
+      <div class="section-title">Contexto adicional</div>
+      <div class="field">
+        <textarea id="contexto" style="min-height:70px;" placeholder="Ex: empresa faz repasse manual para sellers, usa TED ainda, mencionou dor com estornos..."></textarea>
+      </div>
+      <button class="btn-gerar" id="btn" onclick="gerar()">Gerar abordagem + indicação de solução →</button>
+    </div>
+    <div id="result"></div>
+    <div class="footer">Transfeera · <span>Uso interno</span></div>
+  </div>
+  <script>
+    let tabAtual = 'url';
+    function setTab(tab) {
+      tabAtual = tab;
+      document.getElementById('tab-url').classList.toggle('active', tab === 'url' || tab === 'ambos');
+      document.getElementById('tab-texto').classList.toggle('active', tab === 'texto' || tab === 'ambos');
+      document.getElementById('tab-ambos').classList.toggle('active', tab === 'ambos');
+      document.getElementById('campo-url').style.display = (tab === 'url' || tab === 'ambos') ? 'block' : 'none';
+      document.getElementById('campo-texto').style.display = (tab === 'texto' || tab === 'ambos') ? 'block' : 'none';
+    }
+    async function gerar() {
+      const email = document.getElementById('email').value.trim();
+      const url = document.getElementById('url').value.trim();
+      const conteudo = document.getElementById('conteudo').value.trim();
+      const persona = document.getElementById('persona').value.trim();
+      const canal = document.getElementById('canal').value;
+      const objetivo = document.getElementById('objetivo').value;
+      const contexto = document.getElementById('contexto').value.trim();
+      if (!email) { alert('Digite seu e-mail corporativo.'); return; }
+      if (!persona) { alert('Informe a persona que você vai abordar.'); return; }
+      if (!url && !conteudo) { alert('Informe o link do site ou cole o conteúdo do prospect.'); return; }
+      if ((tabAtual === 'url' || tabAtual === 'ambos') && url && !url.startsWith('http')) { alert('A URL precisa começar com http:// ou https://'); return; }
+      const btn = document.getElementById('btn');
+      btn.disabled = true;
+      btn.innerHTML = url ? '<span class="spinner"></span>Lendo o site e gerando abordagem...' : '<span class="spinner"></span>Analisando e gerando...';
+      document.getElementById('result').innerHTML = '';
+      try {
+        const res = await fetch('/api/gerar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, url, conteudo, persona, canal, objetivo, contexto })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
+        renderResult(data, !!url);
+      } catch (e) {
+        document.getElementById('result').innerHTML = `<div class="error-box"><strong>Erro.</strong><br>${e.message}</div>`;
+      }
+      btn.disabled = false;
+      btn.innerHTML = 'Gerar abordagem + indicação de solução →';
+    }
+    function renderResult(d, leuSite) {
+      const score = Math.min(100, Math.max(0, Math.round(d.fit_score || 0)));
+      const sinais = (d.sinais_de_compra || []).map(s => `<span class="tag tag-green">${s}</span>`).join('');
+      const dicas = (d.dicas_de_follow_up || []).map(s => `<span class="tag tag-gray">${s}</span>`).join('');
+      const badge = leuSite ? `<div class="source-badge">🌐 Baseado na leitura do site do prospect</div>` : '';
+      document.getElementById('result').innerHTML = `
+        <div class="result-card">
+          ${badge}
+          <div class="result-section">
+            <div class="result-label">Solução indicada</div>
+            <div class="product-badge">★ ${d.produto_indicado || '—'}</div>
+            <div class="fit-score">
+              <span class="fit-label">Fit</span>
+              <div class="fit-bar-wrap"><div class="fit-bar" style="width:${score}%"></div></div>
+              <span class="fit-num">${score}%</span>
+            </div>
+            <div class="justif">${d.justificativa_fit || ''}</div>
+          </div>
+          <hr class="divider">
+          <div class="result-section">
+            <div class="result-label">Sinais de compra identificados</div>
+            <div class="tag-row">${sinais || '<span style="font-size:13px;color:#999">Nenhum identificado</span>'}</div>
+          </div>
+          <hr class="divider">
+          <div class="result-section">
+            <div class="result-label">Mensagem pronta</div>
+            <div class="msg-box" id="msg-text">${d.abordagem || ''}</div>
+            <button class="copy-btn" onclick="copiar()">Copiar mensagem</button>
+          </div>
+          <hr class="divider">
+          <div class="result-section">
+            <div class="result-label">Dicas de follow-up</div>
+            <div class="tag-row">${dicas}</div>
+          </div>
+        </div>`;
+    }
+    function copiar() {
+      const txt = document.getElementById('msg-text')?.innerText;
+      if (txt) navigator.clipboard.writeText(txt).catch(() => {});
+      const btn = document.querySelector('.copy-btn');
+      if (btn) { btn.textContent = 'Copiado!'; setTimeout(() => btn.textContent = 'Copiar mensagem', 2000); }
+    }
+  </script>
+</body>
+</html>
